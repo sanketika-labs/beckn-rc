@@ -351,9 +351,9 @@ services:
   #     retries: 10
   nginx:
     image: nginx:latest
-    ports:
-      - '80:80'
-      - '443:443'
+    # ports:
+    #   - '80:80'
+    #   - '443:443'
     volumes:
       - ./imports/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
@@ -375,6 +375,20 @@ services:
       interval: 30s
       timeout: 10s
       retries: 10
+
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: always
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./npm-data:/data
+      - ./npm-letsencrypt:/etc/letsencrypt
+    depends_on:
+      credential:
+        condition: service_healthy
   # redis:
   #   image: redis:latest
   #   ports:
