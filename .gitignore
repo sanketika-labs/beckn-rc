@@ -1,0 +1,13 @@
+# Secrets
+keys.txt
+ansi-keys.txt
+parsed-key.txt
+.env
+
+# Local Data
+vault-data/
+db-data/
+
+# Temporary
+.env.tmp
+.DS_Store
