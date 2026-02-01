@@ -29,46 +29,38 @@ app.use(express.json({
 app.use(authMiddleware);
 
 // Proxy configuration
-const identityProxy = createProxyMiddleware({
-    target: IDENTITY_URL,
+const createBecknProxy = (target: string) => createProxyMiddleware({
+    target: target,
     changeOrigin: true,
-    pathRewrite: {
-        // Keep path as is: /did -> /did
-    },
     on: {
         proxyReq: (proxyReq: ClientRequest, req: IncomingMessage, res: ServerResponse) => {
-            console.log(`[Identity] Proxying ${req.method} request to: ${IDENTITY_URL}${req.url}`);
+            console.log(`[Proxy] Forwarding ${req.method} ${req.url} to: ${target}`);
+
+            // Fix: Restream the body if it was parsed by express.json()
+            const expressReq = req as any;
+            if (expressReq.body && Object.keys(expressReq.body).length > 0) {
+                const bodyData = JSON.stringify(expressReq.body);
+                proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+                proxyReq.write(bodyData);
+            }
         }
     }
 });
 
-const credentialProxy = createProxyMiddleware({
-    target: CREDENTIAL_URL,
-    changeOrigin: true,
-    on: {
-        proxyReq: (proxyReq: ClientRequest, req: IncomingMessage, res: ServerResponse) => {
-            console.log(`[Credential] Proxying ${req.method} request to: ${CREDENTIAL_URL}${req.url}`);
-        }
-    }
-});
-
-const credSchemaProxy = createProxyMiddleware({
-    target: CREDSCHEMA_URL,
-    changeOrigin: true,
-    on: {
-        proxyReq: (proxyReq: ClientRequest, req: IncomingMessage, res: ServerResponse) => {
-            console.log(`[CredSchema] Proxying ${req.method} request to: ${CREDSCHEMA_URL}${req.url}`);
-        }
-    }
-});
+const identityProxy = createBecknProxy(IDENTITY_URL);
+const didProxy = createBecknProxy(IDENTITY_URL);
+const credentialProxy = createBecknProxy(CREDENTIAL_URL);
+const credentialsProxy = createBecknProxy(CREDENTIAL_URL);
+const credSchemaProxy = createBecknProxy(CREDSCHEMA_URL);
+const templateProxy = createBecknProxy(CREDSCHEMA_URL);
 
 // Routes
 app.use('/identity', identityProxy);
-app.use('/did', identityProxy);
+app.use('/did', didProxy);
 app.use('/credential', credentialProxy);
-app.use('/credentials', credentialProxy);
+app.use('/credentials', credentialsProxy);
 app.use('/credential-schema', credSchemaProxy);
-app.use('/template', credSchemaProxy);
+app.use('/template', templateProxy);
 
 // Default route for health check
 app.get('/health', (req, res) => {

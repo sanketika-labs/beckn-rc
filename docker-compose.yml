@@ -340,15 +340,28 @@ services:
   #     interval: 30s
   #     timeout: 10s
   #     retries: 10
+  rc-wrapper:
+    build:
+      context: ./rc-wrapper
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - IDENTITY_URL=http://identity:3332
+      - CREDENTIAL_URL=http://credential:3000
+      - CREDSCHEMA_URL=http://credential-schema:3333
+      - AUTH_TOKEN=${RC_WRAPPER_AUTH_TOKEN-my-secret-token}
+      - REGISTRY_URL=${REGISTRY_URL-https://registry.becknprotocol.io/subscribers}
+      - REGISTRY_NAME=${REGISTRY_NAME-lookup}
+    depends_on:
+      identity:
+        condition: service_healthy
+      credential:
+        condition: service_healthy
+      credential-schema:
+        condition: service_healthy
+
   # context-proxy-service:
-  #   image: ghcr.io/sunbird-rc/sunbird-rc-context-proxy-service
-  #   ports:
-  #     - '4400:4400'
-  #   healthcheck:
-  #     test: ['CMD', 'curl', '-f', 'localhost:4400/health']
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 10
   nginx:
     image: nginx:latest
     ports:
@@ -363,6 +376,8 @@ services:
         condition: service_healthy
       identity:
         condition: service_healthy
+      rc-wrapper:
+        condition: service_started
     # depends_on:
     #   registry:
     #     condition: service_healthy

@@ -46,16 +46,46 @@ const authSDK = new AuthSDK({
 });
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    // Reload config to ensure latest protected paths are used
+    let currentProtectedPaths: string[] = [];
+    try {
+        const possiblePaths = [
+            path.resolve(process.cwd(), 'dist/config.json'),
+            path.resolve(process.cwd(), 'src/config.json'),
+            path.resolve(__dirname, '../config.json'),
+            path.resolve(__dirname, '../../src/config.json')
+        ];
+
+        let loaded = false;
+        for (const p of possiblePaths) {
+            if (fs.existsSync(p)) {
+                const configData = fs.readFileSync(p, 'utf8');
+                const config = JSON.parse(configData);
+                if (config.protected && Array.isArray(config.protected)) {
+                    currentProtectedPaths = config.protected;
+                    loaded = true;
+                    // console.log(`[Auth] Loaded config from ${p}:`, currentProtectedPaths);
+                    break;
+                }
+            }
+        }
+        if (!loaded) currentProtectedPaths = protectedPaths;
+    } catch (e) {
+        currentProtectedPaths = protectedPaths;
+    }
+
     // If path matches any protected pattern, check for Beckn signature
-    const isProtected = protectedPaths.some(pattern => req.path.includes(pattern));
+    const isProtected = currentProtectedPaths.some(pattern => req.path.includes(pattern));
 
     if (isProtected) {
+        console.log(`[Auth] Verifying Beckn signature for protected path: ${req.path}`);
         try {
             // Attempt to authorize using Beckn Auth SDK (requires Authorization header)
             await authSDK.authorize(req as any);
+            console.log(`[Auth] Signature verified successfully for: ${req.path}`);
             return next();
         } catch (error: any) {
-            console.error('Beckn signature verification failed:', error.message);
+            console.error(`[Auth] Beckn signature verification failed for ${req.path}:`, error.message);
             return res.status(401).json({
                 message: 'Invalid or missing Beckn signature',
                 error: error.message

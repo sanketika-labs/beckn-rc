@@ -16,3 +16,4 @@ db-data/
 rc-wrapper/node_modules/
 rc-wrapper/dist/
 rc-wrapper/.env
+npm-data
