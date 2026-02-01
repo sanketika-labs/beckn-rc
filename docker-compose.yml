@@ -122,33 +122,34 @@ services:
   #     interval: 30s
   #     timeout: 10s
   #     retries: 10
-  # keycloak:
-  #   image: ghcr.io/sunbird-rc/sunbird-rc-keycloak:latest
-  #   volumes:
-  #     - ./${KEYCLOAK_IMPORT_DIR-imports}:/opt/jboss/keycloak/imports
-  #   environment:
-  #     - KEYCLOAK_LOGO=https://svgshare.com/i/hCs.svg
-  #     - DB_VENDOR=postgres
-  #     - DB_ADDR=db
-  #     - DB_PORT=5432
-  #     - DB_DATABASE=registry
-  #     - DB_USER=postgres
-  #     - DB_PASSWORD=postgres
-  #     - KEYCLOAK_USER=${KEYCLOAK_ADMIN_USER-admin}
-  #     - KEYCLOAK_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD-admin}
-  #     - KEYCLOAK_IMPORT=/opt/jboss/keycloak/imports/realm-export.json
-  #     - PROXY_ADDRESS_FORWARDING=true
-  #   healthcheck:
-  #     test: ['CMD-SHELL', 'curl -f http://localhost:9990/ || exit 1']
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 10
-  #   ports:
-  #     - '8080:8080'
-  #     - '9990:9990'
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
+  keycloak:
+    image: ghcr.io/sunbird-rc/sunbird-rc-keycloak:latest
+    platform: linux/amd64
+    volumes:
+      - ./${KEYCLOAK_IMPORT_DIR-imports}:/opt/jboss/keycloak/imports
+    environment:
+      - KEYCLOAK_LOGO=https://svgshare.com/i/hCs.svg
+      - DB_VENDOR=postgres
+      - DB_ADDR=db
+      - DB_PORT=5432
+      - DB_DATABASE=registry
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - KEYCLOAK_USER=${KEYCLOAK_ADMIN_USER-admin}
+      - KEYCLOAK_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD-admin}
+      - KEYCLOAK_IMPORT=/opt/jboss/keycloak/imports/realm-export.json
+      - PROXY_ADDRESS_FORWARDING=true
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:9990/ || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    ports:
+      - '8080:8080'
+      - '9990:9990'
+    depends_on:
+      db:
+        condition: service_healthy
   # claim-ms:
   #   image: ghcr.io/sunbird-rc/sunbird-rc-claim-ms:${RELEASE_VERSION}
   #   environment:
@@ -216,7 +217,7 @@ services:
       - VAULT_PROXY=${VAULT_PROXY}
       - SIGNING_ALGORITHM=${SIGNING_ALGORITHM}
       - JWKS_URI=${JWKS_URI}
-      - ENABLE_AUTH=${ENABLE_AUTH}
+      - ENABLE_AUTH=false
       - WEB_DID_BASE_URL=${WEB_DID_BASE_URL}
     healthcheck:
       test:
@@ -233,12 +234,12 @@ services:
       db:
         condition: service_healthy
       identity:
-        condition: service_healthy
+        condition: service_started
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/registry
       - IDENTITY_BASE_URL=${IDENTITY_BASE_URL}
       - JWKS_URI=${JWKS_URI}
-      - ENABLE_AUTH=${ENABLE_AUTH}
+      - ENABLE_AUTH=false
     healthcheck:
       test:
         [ "CMD-SHELL", "curl -f http://localhost:3333/health || exit 1" ]
@@ -254,7 +255,7 @@ services:
       db:
         condition: service_healthy
       identity:
-        condition: service_healthy
+        condition: service_started
       credential-schema:
         condition: service_healthy
     environment:
@@ -263,7 +264,7 @@ services:
       - SCHEMA_BASE_URL=${SCHEMA_BASE_URL}
       - CREDENTIAL_SERVICE_BASE_URL=${CREDENTIAL_SERVICE_BASE_URL}
       - JWKS_URI=${JWKS_URI}
-      - ENABLE_AUTH=${ENABLE_AUTH}
+      - ENABLE_AUTH=false
       - QR_TYPE=${QR_TYPE}
     healthcheck:
       test:
@@ -351,9 +352,9 @@ services:
   #     retries: 10
   nginx:
     image: nginx:latest
-    # ports:
-    #   - '80:80'
-    #   - '443:443'
+    ports:
+      - '80:80'
+      - '443:443'
     volumes:
       - ./imports/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
@@ -362,7 +363,7 @@ services:
       credential-schema:
         condition: service_healthy
       identity:
-        condition: service_healthy
+        condition: service_started
     # depends_on:
     #   registry:
     #     condition: service_healthy
@@ -376,19 +377,19 @@ services:
       timeout: 10s
       retries: 10
 
-  nginx-proxy-manager:
-    image: 'jc21/nginx-proxy-manager:latest'
-    restart: always
-    ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
-    volumes:
-      - ./npm-data:/data
-      - ./npm-letsencrypt:/etc/letsencrypt
-    depends_on:
-      credential:
-        condition: service_healthy
+  # nginx-proxy-manager:
+  #   image: 'jc21/nginx-proxy-manager:latest'
+  #   restart: always
+  #   ports:
+  #     - '80:80'
+  #     - '81:81'
+  #     - '443:443'
+  #   volumes:
+  #     - ./npm-data:/data
+  #     - ./npm-letsencrypt:/etc/letsencrypt
+  #   depends_on:
+  #     credential:
+  #       condition: service_healthy
   # redis:
   #   image: redis:latest
   #   ports:
