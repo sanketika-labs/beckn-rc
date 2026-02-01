@@ -11,3 +11,8 @@ db-data/
 # Temporary
 .env.tmp
 .DS_Store
+
+# RC Wrapper
+rc-wrapper/node_modules/
+rc-wrapper/dist/
+rc-wrapper/.env

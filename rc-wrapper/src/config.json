@@ -1,0 +1,6 @@
+{
+    "protected": [
+        "/did/generate",
+        "/verify"
+    ]
+}
