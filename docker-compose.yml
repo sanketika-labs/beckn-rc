@@ -351,7 +351,7 @@ services:
       - CREDENTIAL_URL=http://credential:3000
       - CREDSCHEMA_URL=http://credential-schema:3333
       - REGISTRY_URL=${REGISTRY_URL-https://api.testnet.beckn.one/registry/dedi/lookup}
-      - REGISTRY_NAME=${REGISTRY_NAME-lookup}
+      - REGISTRY_NAME=${REGISTRY_NAME-subscribers.beckn.one}
     depends_on:
       identity:
         condition: service_healthy
