@@ -1,6 +1,6 @@
 {
     "protected": [
         "/did/generate",
-        "/verify"
+        "/credentials/issue"
     ]
 }

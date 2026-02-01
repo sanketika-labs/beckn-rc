@@ -37,9 +37,12 @@ const createBecknProxy = (target: string) => createProxyMiddleware({
             console.log(`[Proxy] Forwarding ${req.method} ${req.url} to: ${target}`);
 
             // Fix: Restream the body if it was parsed by express.json()
+            // We use rawBody to ensure absolute payload integrity (no tampering)
             const expressReq = req as any;
-            if (expressReq.body && Object.keys(expressReq.body).length > 0) {
-                const bodyData = JSON.stringify(expressReq.body);
+            const bodyData = expressReq.rawBody !== undefined ? expressReq.rawBody :
+                (expressReq.body && Object.keys(expressReq.body).length > 0 ? JSON.stringify(expressReq.body) : null);
+
+            if (bodyData !== null) {
                 proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
                 proxyReq.write(bodyData);
             }
