@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import path from 'path';
+import { AuthSDK } from '@manjunath-davanam/beckn-auth-sdk';
 
 // Define config interface
 interface Config {
@@ -11,11 +12,10 @@ let protectedPaths: string[] = [];
 
 // Load config from config.json
 try {
-    // Check possible locations for config.json
     const possiblePaths = [
-        path.resolve(__dirname, '../config.json'),        // dist/config.json
-        path.resolve(__dirname, '../../src/config.json'),  // dist/middleware/../../src/config.json
-        path.resolve(process.cwd(), 'src/config.json')    // root/src/config.json
+        path.resolve(__dirname, '../config.json'),
+        path.resolve(__dirname, '../../src/config.json'),
+        path.resolve(process.cwd(), 'src/config.json')
     ];
 
     let configLoaded = false;
@@ -39,23 +39,30 @@ try {
     console.error('Error loading config.json:', error);
 }
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    // If path matches any protected pattern, check for auth token
+// Initialize AuthSDK
+const authSDK = new AuthSDK({
+    baseUrl: process.env.REGISTRY_URL || 'https://registry.becknprotocol.io/subscribers',
+    registryName: process.env.REGISTRY_NAME || 'lookup',
+});
+
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    // If path matches any protected pattern, check for Beckn signature
     const isProtected = protectedPaths.some(pattern => req.path.includes(pattern));
 
     if (isProtected) {
-        const token = req.headers['authorization'];
-        const expectedToken = process.env.AUTH_TOKEN;
-
-        if (!token || token !== expectedToken) {
-            // Also allow 'Bearer <token>' format
-            if (token && expectedToken && token.startsWith('Bearer ') && token.slice(7) === expectedToken) {
-                return next();
-            }
-            return res.status(401).json({ message: 'Unauthorized' });
+        try {
+            // Attempt to authorize using Beckn Auth SDK (requires Authorization header)
+            await authSDK.authorize(req as any);
+            return next();
+        } catch (error: any) {
+            console.error('Beckn signature verification failed:', error.message);
+            return res.status(401).json({
+                message: 'Invalid or missing Beckn signature',
+                error: error.message
+            });
         }
     }
 
-    // If not protected or auth passed, continue
+    // If not protected, continue normally
     next();
 };

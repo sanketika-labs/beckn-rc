@@ -11,7 +11,12 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manjudr/beck-auth-sdk.git"
+  },
   "dependencies": {
+    "@manjunath-davanam/beckn-auth-sdk": "git+https://github.com/manjudr/beck-auth-sdk.git",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "http-proxy-middleware": "^3.0.5"

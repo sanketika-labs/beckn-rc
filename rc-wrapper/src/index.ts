@@ -18,6 +18,13 @@ if (!IDENTITY_URL || !CREDENTIAL_URL || !CREDSCHEMA_URL) {
     process.exit(1);
 }
 
+// Important: Beckn verification requires the raw request body
+app.use(express.json({
+    verify: (req: any, res, buf) => {
+        req.rawBody = buf.toString();
+    }
+}));
+
 // Apply authentication middleware globally
 app.use(authMiddleware);
 
