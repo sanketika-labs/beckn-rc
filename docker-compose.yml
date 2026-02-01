@@ -350,8 +350,7 @@ services:
       - IDENTITY_URL=http://identity:3332
       - CREDENTIAL_URL=http://credential:3000
       - CREDSCHEMA_URL=http://credential-schema:3333
-      - AUTH_TOKEN=${RC_WRAPPER_AUTH_TOKEN-my-secret-token}
-      - REGISTRY_URL=${REGISTRY_URL-https://registry.becknprotocol.io/subscribers}
+      - REGISTRY_URL=${REGISTRY_URL-https://api.testnet.beckn.one/registry/dedi/lookup}
       - REGISTRY_NAME=${REGISTRY_NAME-lookup}
     depends_on:
       identity:

@@ -41,8 +41,8 @@ try {
 
 // Initialize AuthSDK
 const authSDK = new AuthSDK({
-    baseUrl: process.env.REGISTRY_URL || 'https://registry.becknprotocol.io/subscribers',
-    registryName: process.env.REGISTRY_NAME || 'lookup',
+    baseUrl: process.env.REGISTRY_URL || 'https://api.testnet.beckn.one/registry/dedi/lookup',
+    registryName: process.env.REGISTRY_NAME || 'subscribers.beckn.one',
 });
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
