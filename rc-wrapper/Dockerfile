@@ -2,7 +2,7 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache git
+RUN apk add --no-cache git curl
 
 COPY package*.json ./
 
