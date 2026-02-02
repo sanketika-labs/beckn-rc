@@ -18,7 +18,7 @@ if (!IDENTITY_URL || !CREDENTIAL_URL || !CREDSCHEMA_URL) {
     process.exit(1);
 }
 
-// Important: Beckn verification requires the raw request body
+// Important: Request verification requires the raw request body
 app.use(express.json({
     verify: (req: any, res, buf) => {
         req.rawBody = buf.toString();
@@ -36,7 +36,7 @@ if (enableAuth) {
 }
 
 // Proxy configuration
-const createBecknProxy = (target: string) => createProxyMiddleware({
+const createProxy = (target: string) => createProxyMiddleware({
     target: target,
     changeOrigin: true,
     on: {
@@ -57,12 +57,12 @@ const createBecknProxy = (target: string) => createProxyMiddleware({
     }
 });
 
-const identityProxy = createBecknProxy(IDENTITY_URL);
-const didProxy = createBecknProxy(IDENTITY_URL);
-const credentialProxy = createBecknProxy(CREDENTIAL_URL);
-const credentialsProxy = createBecknProxy(CREDENTIAL_URL);
-const credSchemaProxy = createBecknProxy(CREDSCHEMA_URL);
-const templateProxy = createBecknProxy(CREDSCHEMA_URL);
+const identityProxy = createProxy(IDENTITY_URL);
+const didProxy = createProxy(IDENTITY_URL);
+const credentialProxy = createProxy(CREDENTIAL_URL);
+const credentialsProxy = createProxy(CREDENTIAL_URL);
+const credSchemaProxy = createProxy(CREDSCHEMA_URL);
+const templateProxy = createProxy(CREDSCHEMA_URL);
 
 // Routes
 app.use('/identity', identityProxy);

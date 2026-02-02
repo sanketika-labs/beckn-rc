@@ -133,6 +133,7 @@ services:
       - REGISTRY_URL=${REGISTRY_URL-https://api.testnet.beckn.one/registry/dedi/lookup}
       - REGISTRY_NAME=${REGISTRY_NAME-subscribers.beckn.one}
       - ENABLE_AUTH=${AUTH_SERVICE_ENABLE_AUTH-true}
+      - PROTECTED_PATHS=${PROTECTED_PATHS:-/identity/did/generate,/credential/credentials/issue}
     depends_on:
       identity:
         condition: service_healthy
