@@ -26,7 +26,14 @@ app.use(express.json({
 }));
 
 // Apply authentication middleware globally
-app.use(authMiddleware);
+// Apply authentication middleware globally if enabled
+const enableAuth = process.env.ENABLE_AUTH !== 'false'; // Default to true
+if (enableAuth) {
+    app.use(authMiddleware);
+    console.log('Authentication enabled');
+} else {
+    console.warn('Authentication DISABLED via ENABLE_AUTH flag');
+}
 
 // Proxy configuration
 const createBecknProxy = (target: string) => createProxyMiddleware({
