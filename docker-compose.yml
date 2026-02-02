@@ -120,9 +120,9 @@ services:
       timeout: 5s
       retries: 5
 
-  rc-wrapper:
+  auth-service:
     build:
-      context: ./rc-wrapper
+      context: ./auth-service
     # ports:
     #   - "3001:3001"
     environment:
@@ -159,5 +159,5 @@ services:
     depends_on:
       credential:
         condition: service_healthy
-      rc-wrapper:
+      auth-service:
         condition: service_healthy

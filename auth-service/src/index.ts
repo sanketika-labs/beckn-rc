@@ -67,7 +67,7 @@ app.use('/template', templateProxy);
 
 // Default route for health check
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', service: 'rc-wrapper' });
+    res.json({ status: 'ok', service: 'auth-service' });
 });
 
 app.listen(PORT, () => {

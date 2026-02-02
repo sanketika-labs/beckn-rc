@@ -13,7 +13,8 @@ db-data/
 .DS_Store
 
 # RC Wrapper
-rc-wrapper/node_modules/
-rc-wrapper/dist/
-rc-wrapper/.env
+auth-service/node_modules/
+auth-service/dist/
+auth-service/.env
 npm-data
+auth-token-generateion
