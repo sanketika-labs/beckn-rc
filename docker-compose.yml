@@ -5,8 +5,8 @@ services:
     image: postgres:15-alpine
     volumes:
       - ./${DB_DIR-db-data}:/var/lib/postgresql/data
-    ports:
-      - '5432:5432'
+    # ports:
+    #   - '5432:5432'
     environment:
       - POSTGRES_DB=registry
       - POSTGRES_USER=postgres
@@ -30,8 +30,8 @@ services:
     cap_add:
       - IPC_LOCK
     command: vault server -config=/vault/config/vault.json
-    ports:
-      - 8200:8200
+    # ports:
+    #   - 8200:8200
     healthcheck:
       test:
         [
@@ -45,8 +45,8 @@ services:
   identity:
     image: ghcr.io/sunbird-rc/sunbird-rc-identity-service:${RELEASE_VERSION}
     platform: linux/amd64
-    ports:
-      - "3332:3332"
+    # ports:
+    #   - "3332:3332"
     depends_on:
       vault:
         condition: service_healthy
@@ -74,8 +74,8 @@ services:
   credential-schema:
     image: ghcr.io/sunbird-rc/sunbird-rc-credential-schema:${RELEASE_VERSION}
     platform: linux/amd64
-    ports:
-      - "3333:3333"
+    # ports:
+    #   - "3333:3333"
     depends_on:
       db:
         condition: service_healthy
@@ -96,8 +96,8 @@ services:
   credential:
     image: ghcr.io/sunbird-rc/sunbird-rc-credentials-service:v2.0.1
     platform: linux/amd64
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
     depends_on:
       db:
         condition: service_healthy
