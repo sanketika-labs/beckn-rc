@@ -11,3 +11,10 @@ db-data/
 # Temporary
 .env.tmp
 .DS_Store
+
+# RC Wrapper
+auth-service/node_modules/
+auth-service/dist/
+auth-service/.env
+npm-data
+auth-token-generateion
